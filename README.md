@@ -7,6 +7,7 @@
 * Online multiplayer.
 * Lättstyrt med mus och tangentbord
 * Lättförstådda menyer och förklaring av hur man spelar.
+* 
 ###Om tid finns
 * Serverbrowser där man ska kunna skapa spel och välja spel.
 
