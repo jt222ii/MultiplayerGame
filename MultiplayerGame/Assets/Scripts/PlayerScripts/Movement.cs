@@ -35,7 +35,6 @@ public class Movement : MonoBehaviour {
 
     void Jump()
     {
-
         rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
     }
 }
