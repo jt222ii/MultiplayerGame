@@ -3,8 +3,7 @@ using System.Collections;
 
 public class ArrowScript : MonoBehaviour {
     public float speed;
-    public Vector2 minSpeedUntilHarmless;
-    public Collider2D collision, hitBox;
+    public Collider2D collision;
 
     private bool harmless = false;
     private Rigidbody2D rigidBody;
@@ -31,7 +30,6 @@ public class ArrowScript : MonoBehaviour {
             rigidBody.velocity = Vector2.zero;
             rigidBody.gravityScale = 0;
             Destroy(collision);
-            Destroy(hitBox);
             harmless = true;
         }
     }
