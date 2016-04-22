@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class BulletScript : MonoBehaviour {
+public class BulletScript : NetworkBehaviour
+{
 	public float speed;
 	public int bouncesBeforeDeletion;
 	public Collider2D collision;

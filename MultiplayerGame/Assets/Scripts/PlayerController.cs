@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : NetworkBehaviour {
     public GameObject projectile;
     public Transform projectileSpawn;
     public float fireRate;
@@ -21,6 +22,10 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			changeWeapon (0);

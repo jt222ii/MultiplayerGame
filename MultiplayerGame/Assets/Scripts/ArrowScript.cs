@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class ArrowScript : MonoBehaviour {
+public class ArrowScript : NetworkBehaviour
+{
     public float speed;
     public Collider2D collision;
 

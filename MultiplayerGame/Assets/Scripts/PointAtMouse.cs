@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class PointAtMouse : MonoBehaviour {
+public class PointAtMouse : NetworkBehaviour
+{
 
 	// Use this for initialization
 	void Start () {
