@@ -11,11 +11,10 @@ public class BulletScript : NetworkBehaviour
 	private int bounces = 0;
 	private bool harmless = false;
 	private Rigidbody2D rigidBody;
-	private Renderer myRenderer;
+
 
 	// Use this for initialization
 	void Start () {
-		myRenderer = gameObject.GetComponent<Renderer> ();
 		rigidBody = GetComponent<Rigidbody2D>();
 		rigidBody.velocity = transform.right * speed; 
 	}

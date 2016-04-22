@@ -8,15 +8,30 @@ public class PlayerController : NetworkBehaviour {
     public float fireRate;
 
     private float nextShot;
+	public float movementSpeed;
+	public float jumpForce;
 
-	public int currentWeapon;
+	public bool grounded;
+
+
+	[SyncVar]public int currentWeapon;
 	public Transform[] weapons;
+	public GameObject[] weps2;
 	public GameObject[] projectiles;
 	public float[] fireRates;
+	private Rigidbody2D rigidBody;
 
-    // Use this for initialization
+//    // Use this for initialization
     void Start () {
-		changeWeapon (currentWeapon);
+		//changeWeapon (currentWeapon);
+		rigidBody = gameObject.GetComponent<Rigidbody2D>();
+		CmdChangeWeapon (currentWeapon);
+
+	}
+	void OnStartLocalPlayer () {
+		//changeWeapon (currentWeapon);
+		rigidBody = gameObject.GetComponent<Rigidbody2D>();
+		CmdChangeWeapon (currentWeapon);
 
 	}
 	
@@ -28,18 +43,31 @@ public class PlayerController : NetworkBehaviour {
         }
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
-			changeWeapon (0);
+			CmdChangeWeapon (0);
 		}
 		if (Input.GetKeyDown(KeyCode.Alpha2))
 		{
-			changeWeapon (1);
+			CmdChangeWeapon (1);
 		}
         if (Input.GetButton("Fire1") && Time.time > nextShot)
         {
-            nextShot = Time.time + (1 / fireRate);          
-            Instantiate(projectile, projectileSpawn.position, projectileSpawn.rotation);
+            nextShot = Time.time + (1 / fireRate);      
+			//Instantiate(projectile, projectileSpawn.position, projectileSpawn.rotation);
+			CmdFire (projectileSpawn.rotation);
         }
+		if (Input.GetButtonDown("Jump"))
+		{
+			// rigidBody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+			Jump();
+		}
     }
+	void FixedUpdate()
+	{
+		float horizontal = Input.GetAxis("Horizontal");
+		float velocityX = movementSpeed * horizontal;
+		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);
+	}
+	/* OLD SHIZ
 	public void changeWeapon(int index){
 		currentWeapon = index;
 		for (int i = 0; i < weapons.Length; i++) {
@@ -53,5 +81,40 @@ public class PlayerController : NetworkBehaviour {
 			}
 				
 		}
+			
+	}*/
+
+	[Command]
+	public void CmdChangeWeapon(int index)
+	{
+		//Destroy (gameObject.transform.GetChild (0));
+		if (gameObject.transform.childCount > 0) {
+			NetworkServer.Destroy(gameObject.transform.GetChild (0).gameObject);
+		}
+		projectile = projectiles[index];
+
+		GameObject weapon = GameObject.Instantiate(weps2[index], rigidBody.position, Quaternion.Euler(0.0f, 0.0f, 0.0f)) as GameObject;
+		weapon.transform.parent = gameObject.transform;
+		weapon.transform.localScale = new Vector3(2f, 2f, 2f);//Fullösnign för tillfället
+		projectileSpawn = weapon.gameObject.transform.GetChild (0);
+		NetworkServer.Spawn (weapon);
+		RpcSyncWeaponChange (weapon);
+	}
+	[ClientRpc]
+	public void RpcSyncWeaponChange(GameObject weapon){
+		weapon.transform.parent = gameObject.transform;
+		weapon.transform.localScale = new Vector3(2f, 2f, 2f);//Fullösnign för tillfället
+		projectileSpawn = weapon.gameObject.transform.GetChild (0);
+	}
+	void Jump()
+	{
+		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+	}
+	[Command]
+	public void CmdFire(Quaternion rotation)
+	{
+		GameObject projectileObject = (GameObject)Instantiate(projectile, projectileSpawn.position, rotation);
+		NetworkServer.Spawn (projectileObject);
+
 	}
 }
