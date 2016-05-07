@@ -97,7 +97,8 @@ public class PlayerController : NetworkBehaviour {
 		weapon.transform.parent = gameObject.transform;
 		weapon.transform.localScale = new Vector3(2f, 2f, 2f);//Fullösnign för tillfället
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
-		NetworkServer.Spawn (weapon);
+		NetworkServer.SpawnWithClientAuthority (weapon, gameObject);
+		//NetworkServer.Spawn (weapon);
 		RpcSyncWeaponChange (weapon);
 	}
 	[ClientRpc]
