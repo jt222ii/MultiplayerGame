@@ -20,19 +20,30 @@ public class PlayerController : NetworkBehaviour {
 	public GameObject[] projectiles;
 	public float[] fireRates;
 	private Rigidbody2D rigidBody;
+	private Collider2D collider;
 
+	private NetworkInstanceId networkId;
 //    // Use this for initialization
     void Start () {
 		//changeWeapon (currentWeapon);
+		collider = GetComponent<Collider2D>();
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
-
+		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
 	}
-	void OnStartLocalPlayer () {
+	/*void OnStartLocalPlayer () {
 		//changeWeapon (currentWeapon);
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 
+	}*/
+
+	void OnCollisionEnter2D(Collision2D other)
+	{
+		/*if (other.gameObject.tag == "Projectile") {
+			Destroy (other.gameObject);
+			Destroy (gameObject);
+		}*/
 	}
 	
 	// Update is called once per frame
@@ -53,7 +64,7 @@ public class PlayerController : NetworkBehaviour {
         {
             nextShot = Time.time + (1 / fireRate);      
 			//Instantiate(projectile, projectileSpawn.position, projectileSpawn.rotation);
-			CmdFire (projectileSpawn.rotation);
+			CmdFire (projectileSpawn.rotation, networkId);
         }
 		if (Input.GetButtonDown("Jump"))
 		{
@@ -67,23 +78,6 @@ public class PlayerController : NetworkBehaviour {
 		float velocityX = movementSpeed * horizontal;
 		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);
 	}
-	/* OLD SHIZ
-	public void changeWeapon(int index){
-		currentWeapon = index;
-		for (int i = 0; i < weapons.Length; i++) {
-			if (i == index) {
-				fireRate = fireRates [i];
-				weapons [i].gameObject.SetActive (true);
-				projectile = projectiles[i];
-				projectileSpawn = weapons [i].gameObject.transform.GetChild (0);
-			} else {
-				weapons [i].gameObject.SetActive (false);
-			}
-				
-		}
-			
-	}*/
-
 	[Command]
 	public void CmdChangeWeapon(int index)
 	{
@@ -112,10 +106,11 @@ public class PlayerController : NetworkBehaviour {
 		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 	}
 	[Command]
-	public void CmdFire(Quaternion rotation)
+	public void CmdFire(Quaternion rotation, NetworkInstanceId netId)
 	{
 		GameObject projectileObject = (GameObject)Instantiate(projectile, projectileSpawn.position, rotation);
+		projectileObject.GetComponent<ProjectileScript> ().spawnedBy = netId;
+		//Physics2D.IgnoreCollision (projectileObject.GetComponent<Collider2D> (), collider);
 		NetworkServer.Spawn (projectileObject);
-
 	}
 }
