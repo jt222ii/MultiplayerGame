@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 
 public class PointAtMouse : NetworkBehaviour
 {
+	private bool isFlipped = false;
 	// Use this for initialization
 	void Start () {
 	}
@@ -18,6 +19,7 @@ public class PointAtMouse : NetworkBehaviour
 		mousePos.y = mousePos.y - objectPos.y;
 
 		float angle = Mathf.Atan2 (mousePos.y, mousePos.x) * Mathf.Rad2Deg;
+
 		//transform.rotation = Quaternion.Euler (new Vector3 (0, 0, angle));
 		CmdRotation(Quaternion.Euler (new Vector3 (0, 0, angle)));
 		//RpcSyncRotation(Quaternion.Euler (new Vector3 (0, 0, angle)));
@@ -32,4 +34,5 @@ public class PointAtMouse : NetworkBehaviour
 	public void RpcSyncRotation(Quaternion rotation){
 		transform.rotation = rotation;
 	}
+
 }

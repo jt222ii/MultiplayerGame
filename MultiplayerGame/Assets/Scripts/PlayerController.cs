@@ -6,23 +6,30 @@ public class PlayerController : NetworkBehaviour {
     public GameObject projectile;
     public Transform projectileSpawn;
     public float fireRate;
-
     private float nextShot;
 	public float movementSpeed;
 	public float jumpForce;
 
 	public bool grounded;
 
+	//Animation
+	public Animator animator;
+	bool facingRight = true;
+	[SyncVar]public float moveSpeed;
 
+	//weapons
 	[SyncVar]public int currentWeapon;
 	public Transform[] weapons;
 	public GameObject[] weps2;
 	public GameObject[] projectiles;
 	public float[] fireRates;
+
+
 	private Rigidbody2D rigidBody;
 	private Collider2D collider;
 
 	private NetworkInstanceId networkId;
+
 //    // Use this for initialization
     void Start () {
 		//changeWeapon (currentWeapon);
@@ -30,13 +37,20 @@ public class PlayerController : NetworkBehaviour {
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
+		GetComponent<NetworkAnimator> ().SetParameterAutoSend (0, true);
 	}
-	/*void OnStartLocalPlayer () {
-		//changeWeapon (currentWeapon);
-		rigidBody = gameObject.GetComponent<Rigidbody2D>();
-		CmdChangeWeapon (currentWeapon);
+//	public override void OnStartLocalPlayer () {
+//		//changeWeapon (currentWeapon);
+//		collider = GetComponent<Collider2D>();
+//		rigidBody = gameObject.GetComponent<Rigidbody2D>();
+//		CmdChangeWeapon (currentWeapon);
+//		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
+//	}
 
-	}*/
+	public override void PreStartClient()
+	{
+		GetComponent<NetworkAnimator> ().SetParameterAutoSend (0, true);
+	}
 
 	void OnCollisionEnter2D(Collision2D other)
 	{
@@ -76,20 +90,56 @@ public class PlayerController : NetworkBehaviour {
 	{
 		float horizontal = Input.GetAxis("Horizontal");
 		float velocityX = movementSpeed * horizontal;
+
+		moveSpeed = horizontal;
+		if (moveSpeed > 0.01f || moveSpeed < -0.01f) {
+			GetComponent<NetworkAnimator> ().SetTrigger ("Run");
+		} else if (moveSpeed < 0.01f || moveSpeed > -0.01f) {
+			GetComponent<NetworkAnimator> ().SetTrigger ("Idle");
+		}
+
+		animator.SetFloat ("Speed", Mathf.Abs (moveSpeed));
+
+		if (isLocalPlayer) {
+			if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) {
+				Flip ();
+			}
+		}
 		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);
+
+	}
+
+	void Flip()
+	{
+		facingRight = !facingRight;
+		GetComponent<SpriteRenderer> ().flipX = !facingRight;
+		foreach (Transform child in transform) {
+			if (child.gameObject.tag != "Weapon") {
+				SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer> ();
+				Vector3 position = child.transform.localPosition;
+				position.x *= -1;
+				child.transform.localPosition = position;
+				spriteRenderer.flipX = !spriteRenderer.flipX;
+			}
+		}
 	}
 	[Command]
 	public void CmdChangeWeapon(int index)
 	{
-		//Destroy (gameObject.transform.GetChild (0));
 		if (gameObject.transform.childCount > 0) {
-			NetworkServer.Destroy(gameObject.transform.GetChild (0).gameObject);
+			Transform[] children = gameObject.GetComponentsInChildren<Transform>();
+			foreach (Transform child in transform) {
+				if (child.gameObject.tag == "Weapon") {
+					NetworkServer.Destroy (child.gameObject);
+				}
+			}
+			//NetworkServer.Destroy(gameObject.transform.GetChild (0).gameObject);
 		}
 		projectile = projectiles[index];
 
 		GameObject weapon = GameObject.Instantiate(weps2[index], rigidBody.position, Quaternion.Euler(0.0f, 0.0f, 0.0f)) as GameObject;
 		weapon.transform.parent = gameObject.transform;
-		weapon.transform.localScale = new Vector3(2f, 2f, 2f);//Fullösnign för tillfället
+		//weapon.transform.localScale = new Vector3(1f, 1f, 1f);//vet ej hur jag kan undkomma detta... de verkar inte behålla sin storlek när man spawnar objektet
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
 		NetworkServer.SpawnWithClientAuthority (weapon, gameObject);
 		//NetworkServer.Spawn (weapon);
@@ -98,7 +148,7 @@ public class PlayerController : NetworkBehaviour {
 	[ClientRpc]
 	public void RpcSyncWeaponChange(GameObject weapon){
 		weapon.transform.parent = gameObject.transform;
-		weapon.transform.localScale = new Vector3(2f, 2f, 2f);//Fullösnign för tillfället
+		//weapon.transform.localScale = new Vector3(1f, 1f, 1f);//vet ej hur jag kan undkomma detta... de verkar inte behålla sin storlek när man spawnar objektet
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
 	}
 	void Jump()
