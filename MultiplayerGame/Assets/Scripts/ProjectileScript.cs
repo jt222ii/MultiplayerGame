@@ -55,7 +55,12 @@ public class ProjectileScript : NetworkBehaviour {
 			rigidBody.velocity = Vector2.Reflect(rigidBody.velocity, other.contacts[0].normal);
 			bounces++;
 		} else if (other.gameObject.tag == "Player") {
-			Destroy (other.gameObject);
+			Destroy (gameObject);
+			if (!other.gameObject.GetComponent<PlayerController> ().IsDead) {
+				other.gameObject.GetComponent<PlayerController> ().IsDead = true;
+				GameObject controller = GameObject.FindGameObjectWithTag ("GameController");
+				controller.GetComponent<GameController> ().ResetPlayers ();
+			}
 		}
 	}
 }

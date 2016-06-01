@@ -9,6 +9,7 @@ public class PlayerController : NetworkBehaviour {
     private float nextShot;
 	public float movementSpeed;
 	public float jumpForce;
+	private bool isDead = false;
 
 	public bool grounded;
 
@@ -30,39 +31,23 @@ public class PlayerController : NetworkBehaviour {
 
 	private NetworkInstanceId networkId;
 
-//    // Use this for initialization
     void Start () {
-		//changeWeapon (currentWeapon);
 		collider = GetComponent<Collider2D>();
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
 		GetComponent<NetworkAnimator> ().SetParameterAutoSend (0, true);
 	}
-//	public override void OnStartLocalPlayer () {
-//		//changeWeapon (currentWeapon);
-//		collider = GetComponent<Collider2D>();
-//		rigidBody = gameObject.GetComponent<Rigidbody2D>();
-//		CmdChangeWeapon (currentWeapon);
-//		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
-//	}
 
 	public override void PreStartClient()
 	{
 		GetComponent<NetworkAnimator> ().SetParameterAutoSend (0, true);
 	}
-
-	void OnCollisionEnter2D(Collision2D other)
-	{
-		/*if (other.gameObject.tag == "Projectile") {
-			Destroy (other.gameObject);
-			Destroy (gameObject);
-		}*/
-	}
+		
 	
 	// Update is called once per frame
 	void Update () {
-        if (!isLocalPlayer)
+        if (!isLocalPlayer || isDead)
         {
             return;
         }
@@ -77,17 +62,19 @@ public class PlayerController : NetworkBehaviour {
         if (Input.GetButton("Fire1") && Time.time > nextShot)
         {
             nextShot = Time.time + (1 / fireRate);      
-			//Instantiate(projectile, projectileSpawn.position, projectileSpawn.rotation);
 			CmdFire (projectileSpawn.rotation, networkId);
         }
 		if (Input.GetButtonDown("Jump"))
 		{
-			// rigidBody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
 			Jump();
 		}
     }
+
 	void FixedUpdate()
 	{
+		if (isDead) {
+			return;
+		}
 		float horizontal = Input.GetAxis("Horizontal");
 		float velocityX = movementSpeed * horizontal;
 
@@ -109,6 +96,12 @@ public class PlayerController : NetworkBehaviour {
 
 	}
 
+	void Jump()
+	{
+		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+	}
+
+	//flips the sprite based on direction you are moving
 	void Flip()
 	{
 		facingRight = !facingRight;
@@ -123,6 +116,21 @@ public class PlayerController : NetworkBehaviour {
 			}
 		}
 	}
+		
+	public bool IsDead
+	{
+		get{ return isDead; }
+		set
+		{ 
+			if (value) {
+				gameObject.GetComponent<ParticleSystem> ().Play ();
+			} else if (!value) {
+				gameObject.GetComponent<ParticleSystem> ().Stop ();
+			}
+			isDead = value; 
+		}
+	}
+
 	[Command]
 	public void CmdChangeWeapon(int index)
 	{
@@ -139,28 +147,20 @@ public class PlayerController : NetworkBehaviour {
 
 		GameObject weapon = GameObject.Instantiate(weps2[index], rigidBody.position, Quaternion.Euler(0.0f, 0.0f, 0.0f)) as GameObject;
 		weapon.transform.parent = gameObject.transform;
-		//weapon.transform.localScale = new Vector3(1f, 1f, 1f);//vet ej hur jag kan undkomma detta... de verkar inte behålla sin storlek när man spawnar objektet
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
 		NetworkServer.SpawnWithClientAuthority (weapon, gameObject);
-		//NetworkServer.Spawn (weapon);
 		RpcSyncWeaponChange (weapon);
 	}
 	[ClientRpc]
 	public void RpcSyncWeaponChange(GameObject weapon){
 		weapon.transform.parent = gameObject.transform;
-		//weapon.transform.localScale = new Vector3(1f, 1f, 1f);//vet ej hur jag kan undkomma detta... de verkar inte behålla sin storlek när man spawnar objektet
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
-	}
-	void Jump()
-	{
-		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 	}
 	[Command]
 	public void CmdFire(Quaternion rotation, NetworkInstanceId netId)
 	{
 		GameObject projectileObject = (GameObject)Instantiate(projectile, projectileSpawn.position, rotation);
 		projectileObject.GetComponent<ProjectileScript> ().spawnedBy = netId;
-		//Physics2D.IgnoreCollision (projectileObject.GetComponent<Collider2D> (), collider);
 		NetworkServer.Spawn (projectileObject);
 	}
 }
