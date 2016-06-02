@@ -14,7 +14,6 @@ namespace UnityEngine.Networking
 
 		public Vector2 buttonSize;
 		public int spacing;
-		public RectTransform hostLan;
 		public GUIStyle myStyle;
 
 		// Runtime variable
@@ -69,10 +68,8 @@ namespace UnityEngine.Networking
 		{
 			if (!showGUI)
 				return;
-
-			int xpos = 10 + offsetX;
-			int ypos = 40 + offsetY;
-
+			float xpos = Screen.width/2 - buttonSize.x/2 + offsetX;
+			float ypos = Screen.height/2 + buttonSize.y/2 + offsetY;
 			if (!NetworkClient.active && !NetworkServer.active && manager.matchMaker == null)
 			{
 				if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "LAN Host(H)", myStyle))
