@@ -9,7 +9,7 @@ public class PlayerController : NetworkBehaviour {
     private float nextShot;
 	public float movementSpeed;
 	public float jumpForce;
-	private bool isDead = false;
+	[SyncVar]private bool isDead = false;
 
 	public bool grounded;
 
@@ -120,13 +120,21 @@ public class PlayerController : NetworkBehaviour {
 		get{ return isDead; }
 		set
 		{ 
-			if (value) {
-				gameObject.GetComponent<ParticleSystem> ().Play ();
-			} else if (!value) {
-				gameObject.GetComponent<ParticleSystem> ().Stop ();
-			}
 			isDead = value; 
 		}
+	}
+
+	[Command]
+	public void CmdSetPlayerDead()
+	{
+		IsDead = true;
+		gameObject.GetComponent<ParticleSystem> ().Play ();
+		RpcClientParticles ();
+	}
+	[ClientRpc]
+	public void RpcClientParticles()
+	{
+		gameObject.GetComponent<ParticleSystem> ().Play ();
 	}
 
 	[Command]

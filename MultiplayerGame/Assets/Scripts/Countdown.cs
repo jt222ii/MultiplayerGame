@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class Countdown : MonoBehaviour {
-
-	public bool countDownStarted = false;
+public class Countdown : NetworkBehaviour {
+	[SyncVar]public bool countDownStarted = false;
+	[SyncVar]float timeRemaining;
 	public Text countDownText;
-	float timeRemaining;
+
 	// Use this for initialization
 	void Start () {
 		

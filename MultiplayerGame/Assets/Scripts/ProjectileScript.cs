@@ -57,7 +57,7 @@ public class ProjectileScript : NetworkBehaviour {
 		} else if (other.gameObject.tag == "Player") {
 			Destroy (gameObject);
 			if (!other.gameObject.GetComponent<PlayerController> ().IsDead) {
-				other.gameObject.GetComponent<PlayerController> ().IsDead = true;
+				other.gameObject.GetComponent<PlayerController> ().CmdSetPlayerDead();
 				GameObject controller = GameObject.FindGameObjectWithTag ("GameController");
 				controller.GetComponent<GameController> ().ResetPlayers ();
 			}
