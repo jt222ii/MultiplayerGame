@@ -27,12 +27,10 @@ public class PlayerController : NetworkBehaviour {
 
 
 	private Rigidbody2D rigidBody;
-	private Collider2D collider;
 
 	private NetworkInstanceId networkId;
 
     void Start () {
-		collider = GetComponent<Collider2D>();
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
@@ -135,7 +133,6 @@ public class PlayerController : NetworkBehaviour {
 	public void CmdChangeWeapon(int index)
 	{
 		if (gameObject.transform.childCount > 0) {
-			Transform[] children = gameObject.GetComponentsInChildren<Transform>();
 			foreach (Transform child in transform) {
 				if (child.gameObject.tag == "Weapon") {
 					NetworkServer.Destroy (child.gameObject);

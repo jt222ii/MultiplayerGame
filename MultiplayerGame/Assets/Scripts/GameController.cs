@@ -4,7 +4,6 @@ using UnityEngine.Networking;
 
 public class GameController : NetworkBehaviour {
 	public float respawnTime;
-	private bool isResetting = false;
 	// Use this for initialization
 	void Start () {
 		

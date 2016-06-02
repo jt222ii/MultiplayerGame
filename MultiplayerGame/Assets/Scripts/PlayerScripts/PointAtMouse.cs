@@ -4,7 +4,6 @@ using UnityEngine.Networking;
 
 public class PointAtMouse : NetworkBehaviour
 {
-	private bool isFlipped = false;
 	// Use this for initialization
 	void Start () {
 	}
