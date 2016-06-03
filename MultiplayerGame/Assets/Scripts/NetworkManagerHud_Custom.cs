@@ -19,6 +19,8 @@ namespace UnityEngine.Networking
 		// Runtime variable
 		bool showServer = false;
 
+		public Object[] maps;
+
 		void Awake()
 		{
 			manager = GetComponent<NetworkManager>();
@@ -70,6 +72,8 @@ namespace UnityEngine.Networking
 				return;
 			float xpos = Screen.width/2 - buttonSize.x/2 + offsetX;
 			float ypos = Screen.height/2 + buttonSize.y/2 + offsetY;
+	
+
 			if (!NetworkClient.active && !NetworkServer.active && manager.matchMaker == null)
 			{
 				if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "LAN Host(H)", myStyle))
@@ -84,26 +88,7 @@ namespace UnityEngine.Networking
 				}
 				manager.networkAddress = GUI.TextField(new Rect(xpos + 100, ypos, buttonSize.x/2, buttonSize.y), manager.networkAddress,myStyle);
 				ypos += spacing;
-
-				/*if (GUI.Button(new Rect(xpos, ypos, 200, 20), "LAN Server Only(S)"))
-				{
-					manager.StartServer();
-				}
-				ypos += spacing;*/
 			}
-			/*else
-			{
-				if (NetworkServer.active)
-				{
-					GUI.Label(new Rect(xpos, ypos, 300, 20), "Server: port=" + manager.networkPort);
-					ypos += spacing;
-				}
-				if (NetworkClient.active)
-				{
-					GUI.Label(new Rect(xpos, ypos, 300, 20), "Client: address=" + manager.networkAddress + " port=" + manager.networkPort);
-					ypos += spacing;
-				}
-			}*/
 
 			if (NetworkClient.active && !ClientScene.ready)
 			{
@@ -130,7 +115,6 @@ namespace UnityEngine.Networking
 
 			if (!NetworkServer.active && !NetworkClient.active)
 			{
-				ypos += 10;
 
 				if (manager.matchMaker == null || Input.GetKeyDown(KeyCode.M))
 				{

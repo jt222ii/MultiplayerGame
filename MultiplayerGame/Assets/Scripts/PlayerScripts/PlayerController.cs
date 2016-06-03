@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 public class PlayerController : NetworkBehaviour {
     public GameObject projectile;
     public Transform projectileSpawn;
-    public float fireRate;
+    [SyncVar]public float fireRate;
     private float nextShot;
 	public float movementSpeed;
 	public float jumpForce;
@@ -151,6 +151,7 @@ public class PlayerController : NetworkBehaviour {
 		projectile = projectiles[index];
 
 		GameObject weapon = GameObject.Instantiate(weps2[index], rigidBody.position, Quaternion.Euler(0.0f, 0.0f, 0.0f)) as GameObject;
+		fireRate = fireRates [index];
 		weapon.transform.parent = gameObject.transform;
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
 		NetworkServer.SpawnWithClientAuthority (weapon, gameObject);
