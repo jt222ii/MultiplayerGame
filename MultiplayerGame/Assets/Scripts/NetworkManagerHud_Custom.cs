@@ -49,13 +49,6 @@ namespace UnityEngine.Networking
 				{
 					manager.StartMatchMaker();
 				}
-
-				/*if (Input.GetKeyDown(KeyCode.J))
-                {
-                    manager.matchName = match.name;
-                    manager.matchSize = (uint)match.currentSize;
-                    manager.matchMaker.JoinMatch(match.networkId, "", manager.OnMatchJoined);
-                }*/
 			}
 			if (NetworkServer.active && NetworkClient.active)
 			{

@@ -7,9 +7,6 @@ public class PlayerColor : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 		if (isLocalPlayer) {
-			Debug.Log ("hejhej");
-			var hej = GetComponentInChildren<SpriteRenderer> ();
-			Debug.Log (hej);
 			GetComponentInChildren<SpriteRenderer> ().color = Color.white;
 		}
 	}

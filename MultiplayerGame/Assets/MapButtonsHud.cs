@@ -25,6 +25,7 @@ namespace UnityEngine.Networking
 			if (!NetworkClient.active) {
 				float mapButtonPosX = Screen.width / 2 - buttonSize.x / 2 + offsetX;
 				float mapButtonPosY = Screen.height / 2 + buttonSize.y / 2 + offsetY;
+				GUI.Label (new Rect (mapButtonPosX, mapButtonPosY-spacing/1.5f, buttonSize.x, buttonSize.y), "Chosen map: " + manager.onlineScene);
 				for (int i = 0; i < 2; i++) {
 					var test = mapNames[i];
 					if (GUI.Button (new Rect (mapButtonPosX, mapButtonPosY, buttonSize.x / 2, buttonSize.y), test, managerHud.myStyle)) {

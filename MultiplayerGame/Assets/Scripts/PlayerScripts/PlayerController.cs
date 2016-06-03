@@ -11,7 +11,9 @@ public class PlayerController : NetworkBehaviour {
 	public float jumpForce;
 	[SyncVar]private bool isDead = false;
 
-	public bool grounded;
+	public bool grounded = true;
+	public bool candoublejump = false;
+	public float colliderBounds;
 
 	//Animation
 	public Animator animator;
@@ -31,6 +33,7 @@ public class PlayerController : NetworkBehaviour {
 	private NetworkInstanceId networkId;
 
     void Start () {
+		colliderBounds = GetComponent<BoxCollider2D> ().bounds.extents.y;
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
@@ -93,17 +96,26 @@ public class PlayerController : NetworkBehaviour {
 		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);
 
 	}
-
+		
 	void Jump()
 	{
-		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+		if (rigidBody.velocity.y == 0) {
+			rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+			candoublejump = true;
+		} 
+		else if(candoublejump) 
+		{
+			candoublejump = false;
+			rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+		}
+		
+		//rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 	}
 
 	//flips the sprite based on direction you are moving
 	void Flip()
 	{
 		facingRight = !facingRight;
-		GetComponent<SpriteRenderer> ().flipX = !facingRight;
 		foreach (Transform child in transform) {
 			if (child.gameObject.tag != "Weapon") {
 				SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer> ();
