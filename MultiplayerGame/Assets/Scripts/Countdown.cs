@@ -8,10 +8,6 @@ public class Countdown : NetworkBehaviour {
 	[SyncVar]float timeRemaining;
 	public Text countDownText;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -24,6 +20,7 @@ public class Countdown : NetworkBehaviour {
 			countDownStarted = false;
 		}
 	}
+	//starts the countdown for specified amount of seconds
 	public void startCountDown(float seconds){
 		timeRemaining = seconds;
 		countDownStarted = true;

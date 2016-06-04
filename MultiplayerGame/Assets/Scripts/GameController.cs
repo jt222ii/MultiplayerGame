@@ -4,16 +4,7 @@ using UnityEngine.Networking;
 
 public class GameController : NetworkBehaviour {
 	public float respawnTime;
-	// Use this for initialization
-	void Start () {
-		
-	}
-
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
+	//Finds the player objects and calls a function to respawn the players.
 	public void ResetPlayers(){
 		GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
 		gameObject.GetComponent<Countdown> ().startCountDown (respawnTime);

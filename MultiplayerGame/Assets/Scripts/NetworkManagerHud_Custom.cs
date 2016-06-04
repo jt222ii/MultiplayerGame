@@ -9,17 +9,13 @@ namespace UnityEngine.Networking
 	{
 		public NetworkManager manager;
 		[SerializeField] public bool showGUI = true;
-		[SerializeField] public int offsetX;
-		[SerializeField] public int offsetY;
+		[SerializeField] public int offsetX;//Offset for the meny on the x-axis
+		[SerializeField] public int offsetY;//Offset for the meny on the y-axis
 
-		public Vector2 buttonSize;
-		public int spacing;
-		public GUIStyle myStyle;
+		public Vector2 buttonSize;//size of the buttons
+		public int spacing;//spacing between the buttons
+		public GUIStyle myStyle;//Style for the buttons
 
-		// Runtime variable
-		bool showServer = false;
-
-		public Object[] maps;
 
 		void Awake()
 		{
@@ -69,22 +65,26 @@ namespace UnityEngine.Networking
 
 			if (!NetworkClient.active && !NetworkServer.active && manager.matchMaker == null)
 			{
+				//Button to host a LAN game. If pressed the networkmanager will start a hosted lan game
 				if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "LAN Host(H)", myStyle))
 				{
 					manager.StartHost();
 				}
 				ypos += spacing;
 
+				//Button to join a LAN game. If pressed the networkmanager will join a LAN game.
 				if (GUI.Button(new Rect(xpos, ypos, buttonSize.x/2, buttonSize.y), "LAN Client(C)", myStyle))
 				{
 					manager.StartClient();
 				}
+				//Textfield where you can specify the address for the game. Defaults to localhost
 				manager.networkAddress = GUI.TextField(new Rect(xpos + 100, ypos, buttonSize.x/2, buttonSize.y), manager.networkAddress,myStyle);
 				ypos += spacing;
 			}
 
 			if (NetworkClient.active && !ClientScene.ready)
 			{
+				
 				if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Client Ready")||Input.GetKeyDown(KeyCode.R))
 				{
 					ClientScene.Ready(manager.client.connection);
@@ -97,9 +97,10 @@ namespace UnityEngine.Networking
 				ypos += spacing;
 			}
 
-			if (NetworkServer.active || NetworkClient.active)
+			if (NetworkServer.active || NetworkClient.active) 
 			{
-				if (/*GUI.Button(new Rect(xpos, ypos, 200, 20), "Stop (Esc)", myStyle)||*/ Input.GetKeyDown(KeyCode.Escape))
+				//if escape is pressed disconnect from the server
+				if (Input.GetKeyDown(KeyCode.Escape))
 				{
 					manager.StopHost();
 				}
@@ -111,6 +112,7 @@ namespace UnityEngine.Networking
 
 				if (manager.matchMaker == null || Input.GetKeyDown(KeyCode.M))
 				{
+					//Button to enable matchmaking. If pressed - start matchmaker.
 					if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "Enable Match Maker (M)", myStyle))
 					{
 						manager.StartMatchMaker();
@@ -123,6 +125,7 @@ namespace UnityEngine.Networking
 					{
 						if (manager.matches == null)
 						{
+							//Button to create internet match. if pressed create a match
 							if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "Create Internet Match", myStyle)|| Input.GetKeyDown(KeyCode.N))
 							{
 								manager.matchMaker.CreateMatch(manager.matchName, manager.matchSize, true, "", manager.OnMatchCreate);
@@ -135,6 +138,7 @@ namespace UnityEngine.Networking
 
 							ypos += 10;
 
+							//button to search for internet matches. If pressed a list of available matches should appear if there is any.
 							if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "Find Internet Match", myStyle)|| Input.GetKeyDown(KeyCode.J))
 							{
 								manager.matchMaker.ListMatches(0,20, "", manager.OnMatchList);
@@ -145,6 +149,7 @@ namespace UnityEngine.Networking
 						{
 							foreach (var match in manager.matches)
 							{
+								//button for each match that you can join-
 								if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "Join Match:" + match.name,myStyle)|| Input.GetKeyDown(KeyCode.K))
 								{
 									manager.matchName = match.name;
@@ -157,37 +162,9 @@ namespace UnityEngine.Networking
 						}
 					}
 
-					/*if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Change MM server"))
-					{
-						showServer = !showServer;
-					}*/
-					if (showServer)
-					{
-						ypos += spacing;
-						if (GUI.Button(new Rect(xpos, ypos, buttonSize.x/2, buttonSize.y), "Local", myStyle))
-						{
-							manager.SetMatchHost("localhost", 1337, false);
-							showServer = false;
-						}
-						ypos += spacing;
-						if (GUI.Button(new Rect(xpos, ypos, buttonSize.x/2, buttonSize.y), "Internet", myStyle))
-						{
-							manager.SetMatchHost("mm.unet.unity3d.com", 443, true);
-							showServer = false;
-						}
-						ypos += spacing;
-						if (GUI.Button(new Rect(xpos, ypos, buttonSize.x/2, buttonSize.y), "Staging", myStyle))
-						{
-							manager.SetMatchHost("staging-mm.unet.unity3d.com", 443, true);
-							showServer = false;
-						}
-					}
-
 					ypos += spacing;
 
-					/*GUI.Label(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "MM Uri: " + manager.matchMaker.baseUri);
-					ypos += spacing;*/
-
+					//Button for disabling the matchmaker. When pressed the matchmaker is stopped.
 					if (GUI.Button(new Rect(xpos, ypos, buttonSize.x, buttonSize.y), "Disable Match Maker", myStyle))
 					{
 						manager.StopMatchMaker();

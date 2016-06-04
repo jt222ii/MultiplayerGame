@@ -17,11 +17,9 @@ public class PointAtMouse : NetworkBehaviour
 		mousePos.x = mousePos.x - objectPos.x;
 		mousePos.y = mousePos.y - objectPos.y;
 
-		float angle = Mathf.Atan2 (mousePos.y, mousePos.x) * Mathf.Rad2Deg;
+		float angle = Mathf.Atan2 (mousePos.y, mousePos.x) * Mathf.Rad2Deg; //angle of rotation to mouse
 
-		//transform.rotation = Quaternion.Euler (new Vector3 (0, 0, angle));
 		CmdRotation(Quaternion.Euler (new Vector3 (0, 0, angle)));
-		//RpcSyncRotation(Quaternion.Euler (new Vector3 (0, 0, angle)));
 		
     }
 	[Command]
@@ -31,7 +29,7 @@ public class PointAtMouse : NetworkBehaviour
 	}
 	[ClientRpc]
 	public void RpcSyncRotation(Quaternion rotation){
-		transform.rotation = rotation;
+		transform.rotation = rotation;//set rotation to make the weapon point at mouse
 	}
 
 }

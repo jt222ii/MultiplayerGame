@@ -23,7 +23,6 @@ public class weapon_rotationSync : NetworkBehaviour {
 	{
 		if(!isLocalPlayer){
 			weaponTransform.rotation = Quaternion.Lerp (weaponTransform.rotation, syncWeaponRotation, Time.deltaTime * lerpRate);
-
 		}
 	}
 

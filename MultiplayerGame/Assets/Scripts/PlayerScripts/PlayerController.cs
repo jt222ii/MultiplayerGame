@@ -13,7 +13,6 @@ public class PlayerController : NetworkBehaviour {
 
 	public bool grounded = true;
 	public bool candoublejump = false;
-	public float colliderBounds;
 
 	//Animation
 	public Animator animator;
@@ -22,10 +21,9 @@ public class PlayerController : NetworkBehaviour {
 
 	//weapons
 	[SyncVar]public int currentWeapon;
-	public Transform[] weapons;
-	public GameObject[] weps2;
-	public GameObject[] projectiles;
-	public float[] fireRates;
+	public GameObject[] weps2;//Array with the different weapons
+	public GameObject[] projectiles;//Array with different projectiles
+	public float[] fireRates;//Array with different firerates
 
 
 	private Rigidbody2D rigidBody;
@@ -33,7 +31,6 @@ public class PlayerController : NetworkBehaviour {
 	private NetworkInstanceId networkId;
 
     void Start () {
-		colliderBounds = GetComponent<BoxCollider2D> ().bounds.extents.y;
 		rigidBody = gameObject.GetComponent<Rigidbody2D>();
 		CmdChangeWeapon (currentWeapon);
 		networkId = gameObject.GetComponent<NetworkIdentity> ().netId;
@@ -81,25 +78,27 @@ public class PlayerController : NetworkBehaviour {
 
 		moveSpeed = horizontal;
 		if (moveSpeed > 0.01f || moveSpeed < -0.01f) {
-			GetComponent<NetworkAnimator> ().SetTrigger ("Run");
+			GetComponent<NetworkAnimator> ().SetTrigger ("Run");//if player is moving set animationtrigger to run
 		} else if (moveSpeed < 0.01f || moveSpeed > -0.01f) {
-			GetComponent<NetworkAnimator> ().SetTrigger ("Idle");
+			GetComponent<NetworkAnimator> ().SetTrigger ("Idle");//if player is not moving set animationtrigger to idle
 		}
 
 		animator.SetFloat ("Speed", Mathf.Abs (moveSpeed));
 
 		if (isLocalPlayer) {
-			if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) {
+			if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) //if player is moving in a new direction. Flip the sprite of the player
+			{
 				Flip ();
 			}
 		}
-		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);
+		rigidBody.velocity = new Vector2(velocityX, rigidBody.velocity.y);//set the velocity of the player 
 
 	}
 		
 	void Jump()
 	{
-		if (rigidBody.velocity.y == 0) {
+		if (rigidBody.velocity.y == 0) //if player is not moving on the y axis he can jump
+		{
 			rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 			candoublejump = true;
 		} 
@@ -108,11 +107,10 @@ public class PlayerController : NetworkBehaviour {
 			candoublejump = false;
 			rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 		}
-		
-		//rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+
 	}
 
-	//flips the sprite based on direction you are moving
+	//flips the sprite of the player
 	void Flip()
 	{
 		facingRight = !facingRight;
@@ -137,7 +135,7 @@ public class PlayerController : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetPlayerDead()
+	public void CmdSetPlayerDead()//sets the player to being dead and plays the particle system simulating blood
 	{
 		IsDead = true;
 		gameObject.GetComponent<ParticleSystem> ().Play ();
@@ -158,7 +156,6 @@ public class PlayerController : NetworkBehaviour {
 					NetworkServer.Destroy (child.gameObject);
 				}
 			}
-			//NetworkServer.Destroy(gameObject.transform.GetChild (0).gameObject);
 		}
 		projectile = projectiles[index];
 
@@ -170,12 +167,13 @@ public class PlayerController : NetworkBehaviour {
 		RpcSyncWeaponChange (weapon);
 	}
 	[ClientRpc]
-	public void RpcSyncWeaponChange(GameObject weapon){
+	public void RpcSyncWeaponChange(GameObject weapon)//synchronize the weapon change
+	{
 		weapon.transform.parent = gameObject.transform;
 		projectileSpawn = weapon.gameObject.transform.GetChild (0);
 	}
 	[Command]
-	public void CmdFire(Quaternion rotation, NetworkInstanceId netId)
+	public void CmdFire(Quaternion rotation, NetworkInstanceId netId)//Fire the weapon
 	{
 		GameObject projectileObject = (GameObject)Instantiate(projectile, projectileSpawn.position, rotation);
 		projectileObject.GetComponent<ProjectileScript> ().spawnedBy = netId;
