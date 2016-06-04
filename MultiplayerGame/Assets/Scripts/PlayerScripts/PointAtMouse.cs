@@ -4,12 +4,17 @@ using UnityEngine.Networking;
 
 public class PointAtMouse : NetworkBehaviour
 {
+	private bool isParentLocalPlayer;
 	// Use this for initialization
 	void Start () {
+		isParentLocalPlayer = transform.parent.GetComponent<PlayerController> ().isLocalPlayer;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if (!isParentLocalPlayer) {
+			return;
+		}
 		Vector3 mousePos = Input.mousePosition;
 		mousePos.z = 5.23f;
 
